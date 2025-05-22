@@ -3,4 +3,8 @@ line-length = 88
 
 [tool.isort]
 profile = "black"
-line_length = 88 
+line_length = 88
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+asyncio_mode = "auto" 
