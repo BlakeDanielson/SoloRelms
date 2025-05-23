@@ -3,3 +3,125 @@ description:
 globs:
 alwaysApply: false
 ---
+# Testing Documentation Maintenance
+
+## **Document Update Triggers**
+
+Update `testingInfo.md` and `userTesting.md` when:
+- New test files are created
+- Test frameworks are updated or configured
+- Test status changes (passing/failing)
+- New testing infrastructure is added
+- Code coverage metrics change
+- Test categories are added or removed
+
+## **TestingInfo.md Maintenance**
+
+- **Test Status Updates:** Update test result tables when tests pass/fail
+- **New Test Categories:** Add sections for new test types (integration, performance, etc.)
+- **Framework Changes:** Update test infrastructure details when tools change
+- **Coverage Metrics:** Update code coverage percentages and goals
+- **Test Commands:** Keep run commands current with actual project setup
+
+**Example Updates:**
+```markdown
+### New Backend API Tests
+**Location**: `backend/tests/test_character_api.py`
+**Status**: 🟢 **PASSING** - Character CRUD operations
+**Coverage**: Character creation, retrieval, update, deletion
+
+**Current Tests:**
+- `test_create_character()` - POST /characters endpoint
+- `test_get_character()` - GET /characters/{id} endpoint
+```
+
+## **UserTesting.md Maintenance**
+
+- **Development Progress:** Update completion percentages and feature status
+- **Feature Status:** Move features between Ready/In Development/Not Available sections
+- **Testing Instructions:** Add new test procedures as features become available
+- **Known Issues:** Update limitations and resolved issues
+- **Next Milestones:** Adjust timeline and upcoming testable features
+
+**Example Updates:**
+```markdown
+### ✅ Completed Features (Ready for Testing)
+
+#### 3. Character API Endpoints (Task 2.2 - COMPLETE)
+- **CRUD Operations**: Create, read, update, delete characters via REST API
+- **Validation**: Input validation and error handling
+- **Documentation**: Auto-generated Swagger UI at /docs
+- **Status**: 🟢 Fully functional
+
+#### Test 3: Character API Testing
+\`\`\`bash
+# Test character creation
+curl -X POST "http://127.0.0.1:8000/characters" \
+     -H "Content-Type: application/json" \
+     -d '{"user_id": "test", "name": "Hero", "race": "human", "character_class": "fighter", ...}'
+
+# Test character retrieval
+curl "http://127.0.0.1:8000/characters/1"
+\`\`\`
+```
+
+## **Automated Documentation Updates**
+
+### **Task Completion Triggers**
+When completing task-master tasks:
+```bash
+# After task completion, update docs
+task-master set-status --id=X.Y --status=done
+# Then update both documents with new testable features
+```
+
+### **Test File Creation Triggers**
+When creating new test files:
+- Add test descriptions to `testingInfo.md`
+- Add testing instructions to `userTesting.md` if user-testable
+- Update test result tables
+- Update roadmap/milestone sections
+
+### **Feature Implementation Triggers**
+When implementing new features:
+- Move features from "Not Available" to "Ready for Testing" in `userTesting.md`
+- Add corresponding test sections to `testingInfo.md`
+- Update known issues and limitations
+- Adjust completion percentages
+
+## **Documentation Standards**
+
+### **Status Indicators**
+- 🟢 **PASSING** - Tests working correctly
+- 🟡 **FLAKY** - Tests passing but unreliable
+- 🔴 **FAILING** - Tests not passing
+- ⏳ **PENDING** - Tests planned but not implemented
+- 🔧 **IN PROGRESS** - Tests being developed
+
+### **Update Frequency**
+- **Daily**: Test status and results during active development
+- **Weekly**: Progress percentages and milestone adjustments
+- **Per Task**: Feature availability and testing instructions
+- **Per Release**: Major sections and roadmap updates
+
+### **Cross-Reference Requirements**
+- Link to actual test files with `[filename](mdc:path/to/test)`
+- Reference task numbers and completion status
+- Include run commands that work with current project setup
+- Maintain accuracy of all code examples and commands
+
+## **Quality Assurance**
+
+- **Test Commands**: Verify all testing commands work before documenting
+- **Feature Status**: Ensure feature categorization matches actual implementation
+- **Completion Percentages**: Base on actual task completion in task-master
+- **Roadmap Accuracy**: Align with task dependencies and realistic timelines
+
+## **Integration with Development Workflow**
+
+1. **Before Committing**: Update test status if tests were added/modified
+2. **After Feature Implementation**: Update user testing instructions
+3. **During Task Planning**: Adjust roadmap and milestone sections
+4. **Weekly Reviews**: Comprehensive update of both documents
+
+Follow [dev_workflow.mdc](mdc:.cursor/rules/dev_workflow.mdc) for task-master integration patterns.
