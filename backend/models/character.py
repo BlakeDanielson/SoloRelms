@@ -57,8 +57,7 @@ class Character(Base):
     notes = Column(Text, nullable=True)
     
     # Relationships (will be defined when other models are created)
-    # story_arcs = relationship("StoryArc", back_populates="character")
-    # combat_sessions = relationship("Combat", back_populates="character")
+    story_arcs = relationship("StoryArc", back_populates="character")
     
     @hybrid_property
     def strength_modifier(self):
