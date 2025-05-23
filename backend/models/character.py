@@ -2,7 +2,11 @@ from sqlalchemy import Column, Integer, String, JSON, DateTime, Boolean, Foreign
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
-from ..database import Base
+try:
+    from ..database import Base
+except ImportError:
+    # Fallback for when running from alembic or direct execution
+    from database import Base
 import json
 
 class Character(Base):
@@ -58,6 +62,8 @@ class Character(Base):
     
     # Relationships (will be defined when other models are created)
     story_arcs = relationship("StoryArc", back_populates="character")
+    combat_encounters = relationship("CombatEncounter", back_populates="character")
+    combat_participants = relationship("CombatParticipant", back_populates="character")
     
     @hybrid_property
     def strength_modifier(self):

@@ -3,7 +3,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 from enum import Enum as PyEnum
-from ..database import Base
+try:
+    from ..database import Base
+except ImportError:
+    # Fallback for when running from alembic or direct execution
+    from database import Base
 
 class StoryStage(PyEnum):
     """Story progression stages as defined in PRD"""
@@ -103,6 +107,7 @@ class StoryArc(Base):
     # Relationships
     character = relationship("Character", back_populates="story_arcs")
     world_states = relationship("WorldState", back_populates="story_arc", cascade="all, delete-orphan")
+    combat_encounters = relationship("CombatEncounter", back_populates="story_arc", cascade="all, delete-orphan")
     
     def advance_stage(self):
         """Advance to the next story stage"""
