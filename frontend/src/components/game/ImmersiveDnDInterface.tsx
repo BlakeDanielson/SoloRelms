@@ -365,7 +365,7 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
     if (character.id && user?.id && !gameCommunication.sessionId) {
       initializeOrchestrationSession()
     }
-  }, [character.id, user?.id, gameCommunication, characterId])
+  }, [character.id, user?.id, gameCommunication.sessionId, characterId])
 
   // Handle dice rolling using real communication
   const rollDice = async (diceType: string) => {
