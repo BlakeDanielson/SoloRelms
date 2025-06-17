@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { Sword, Shield, Heart, Plus, Minus, Users, MapPin, Target, Clock, MessageCircle, Dice6, Package, Scroll, Book, Settings, History } from 'lucide-react'
 import SceneDisplay from './SceneDisplay'
 import CharacterAvatar from './CharacterAvatar'
@@ -34,144 +34,103 @@ interface ImmersiveDnDInterfaceProps {
 const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ characterId, storyId }) => {
   // Auth hook
   const { getToken } = useAuth()
+  const { user } = useUser()
   
   // State for loading and auth
+  const [token, setToken] = useState<string | null>(null)
+  const [authToken, setAuthToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [authToken, setAuthToken] = useState<string | null>(null)
-
-  // Get auth token on mount
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const token = await getToken()
-        setAuthToken(token)
-      } catch (error) {
-        console.error('Failed to get auth token:', error)
-        setError('Authentication failed')
-      }
+  
+  // Chat state
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [chatContainerRef, setChatContainerRef] = useState<HTMLDivElement | null>(null)
+  
+  // Dice requirement modal state
+  const [showDiceRequirement, setShowDiceRequirement] = useState(false)
+  const [diceRequirement, setDiceRequirement] = useState<{
+    expression: string
+    purpose: string
+    dc?: number
+    ability_modifier?: number
+    advantage?: boolean
+    disadvantage?: boolean
+  } | null>(null)
+  const [isDiceFulfillmentLoading, setIsDiceFulfillmentLoading] = useState(false)
+  
+  // TTS state
+  const [ttsSettings, setTtsSettings] = useState({
+    enabled: true,
+    autoPlay: false,
+    voice: 'alloy' as const,
+    model: 'tts-1' as const
+  })
+  
+  // Character state (initialize with mock data)
+  const [character, setCharacter] = useState<Character>({
+    id: 1,
+    name: "Adventurer",
+    class: "Fighter",
+    race: "Human",
+    level: 1,
+    current_hp: 10,
+    max_hp: 10,
+    armor_class: 14,
+    location: "Starting Village",
+    status_effects: [],
+    inventory: []
+  })
+  
+  // Game state
+  const [gameState, setGameState] = useState<GameState>({
+    current_scene: "The Adventure Begins",
+    current_location: "Starting Village",
+    scene_type: "exploration",
+    objectives: [],
+    recent_events: [],
+    world_state: {
+      time_of_day: "morning",
+      weather: "clear",
+      season: "spring",
+      important_npcs: [],
+      active_quests: [],
+      world_events: []
     }
-    initializeAuth()
-  }, [getToken])
+  })
+  
+  // Story progress
+  const [storyProgress, setStoryProgress] = useState({
+    currentStage: "Introduction",
+    stagesCompleted: [],
+    storyCompleted: false
+  })
 
-  // Token refresh callback
-  const handleTokenRefresh = useCallback(async (): Promise<string | null> => {
-    try {
-      console.log('🔄 Refreshing token...')
-      const newToken = await getToken()
-      setAuthToken(newToken)
-      return newToken
-    } catch (error) {
-      console.error('❌ Token refresh failed:', error)
-      setError('Authentication session expired. Please refresh the page.')
-      return null
-    }
-  }, [getToken])
-
-  // Real-time communication setup
+  // Game communication hook
   const gameCommunication = useGameCommunication({
-    gameId: storyId || 'test-game-1',
-    characterId: characterId ? parseInt(characterId) : 1,
-    authToken,
-    tokenRefreshCallback: handleTokenRefresh,
+    gameId: storyId || 'demo-story',
+    characterId: Number(characterId) || 1,
+    authToken: token,
+    tokenRefreshCallback: (newToken: string) => {
+      setToken(newToken)
+    },
     onNewMessage: (message) => {
-      console.log('💬 ImmersiveDnDInterface received new message:', message)
-      console.log('💬 Message content:', message.content)
-      console.log('💬 Message type:', message.type)
-      console.log('💬 Current chat messages count before:', chatMessages.length)
-      setChatMessages(prev => {
-        const newMessages = [...prev, message]
-        console.log('💬 Chat messages count after:', newMessages.length)
-        console.log('💬 Last message added:', newMessages[newMessages.length - 1])
-        return newMessages
-      })
-
-      // Auto-play TTS for DM narration if enabled
-      if (message.type === 'dm_narration' && ttsSettings.autoPlay && message.content) {
-        console.log('🎤 Auto-playing TTS for DM message')
-        // Small delay to ensure message is added to chat first
-        setTimeout(() => {
-          speak(message.content, {
-            voice: ttsSettings.voice,
-            model: ttsSettings.model
-          }).catch((error: any) => {
-            console.warn('Auto-play TTS failed:', error);
-          });
-        }, 300);
-      }
+      console.log('📨 New message received from game communication:', message)
+      setChatMessages(prev => [...prev, message])
     },
     onGameStateUpdate: (updates) => {
+      console.log('🎮 Game state update received:', updates)
       setGameState(prev => ({ ...prev, ...updates }))
     },
     onCharacterUpdate: (updates) => {
+      console.log('👤 Character update received:', updates)
       setCharacter(prev => ({ ...prev, ...updates }))
     },
     onConnectionChange: (status) => {
       console.log('🔗 Connection status changed:', status)
-      // Handle auth errors specifically
-      if (status === 'error') {
-        // Trigger token refresh on connection errors that might be auth-related
-        handleTokenRefresh()
-      }
     }
   })
 
-  // Mock data - will be replaced with real data from backend
-  const [character, setCharacter] = useState<Character>({
-    id: 1,
-    name: "Elara Brightblade",
-    class: "Paladin",
-    race: "Half-Elf",
-    level: 5,
-    current_hp: 42,
-    max_hp: 55,
-    armor_class: 18,
-    location: "The Whispering Woods",
-    status_effects: ["Blessed", "Alert"],
-    inventory: [
-      { id: 1, name: "Longsword +1", description: "A magical blade that glows faintly", quantity: 1, type: 'weapon', rarity: 'uncommon' },
-      { id: 2, name: "Healing Potion", description: "Restores 2d4+2 HP", quantity: 3, type: 'consumable', rarity: 'common' },
-      { id: 3, name: "Shield of Faith", description: "AC +2", quantity: 1, type: 'armor', rarity: 'rare' },
-      { id: 4, name: "Boots of Elvenkind", description: "Advantage on Stealth checks", quantity: 1, type: 'boots', rarity: 'uncommon' },
-      { id: 5, name: "Cloak of Protection", description: "+1 AC and saving throws", quantity: 1, type: 'cloak', rarity: 'uncommon' },
-      { id: 6, name: "Ring of Fire Resistance", description: "Resistance to fire damage", quantity: 1, type: 'misc', rarity: 'rare' },
-      { id: 7, name: "Thieves' Tools", description: "Masterwork lockpicking tools", quantity: 1, type: 'misc', rarity: 'common' },
-      { id: 8, name: "Dragon Scale Helmet", description: "AC +1, intimidation advantage", quantity: 1, type: 'helmet', rarity: 'epic' },
-      { id: 9, name: "Gauntlets of Ogre Power", description: "Strength becomes 19", quantity: 1, type: 'gloves', rarity: 'uncommon' },
-      { id: 10, name: "Ancient Gold Coin", description: "A mysterious coin from a lost empire", quantity: 12, type: 'treasure', rarity: 'rare' },
-      { id: 11, name: "Scroll of Fireball", description: "Cast Fireball (3rd level)", quantity: 2, type: 'consumable', rarity: 'uncommon' },
-      { id: 12, name: "Dagger of Venom", description: "+1 dagger, poison damage", quantity: 1, type: 'weapon', rarity: 'rare' }
-    ]
-  })
-
-  const [gameState, setGameState] = useState<GameState>({
-    current_scene: "Ancient Forest Clearing",
-    scene_image_url: "/api/placeholder/600/300",
-    scene_type: "exploration",
-    objectives: [
-      "Find the lost artifact",
-      "Rescue the trapped villagers",
-      "Defeat the shadow cultists"
-    ],
-    recent_events: [
-      "Discovered ancient ruins",
-      "Met a mysterious elf ranger",
-      "Found tracks of the missing caravan"
-    ],
-    current_location: "The Whispering Woods - Ancient Clearing",
-    party_members: []
-  })
-
-  // Story progress state
-  const [storyProgress, setStoryProgress] = useState({
-    currentStage: 'first_combat',
-    stagesCompleted: ['intro', 'inciting_incident'],
-    storyCompleted: false
-  })
-
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
-  const [chatContainerRef, setChatContainerRef] = useState<HTMLDivElement | null>(null)
-
+  // Additional UI state for game panels and interactions
   const [isTyping, setIsTyping] = useState(false)
   const [showDiceRoller, setShowDiceRoller] = useState(false)
   const [showCombatHUD, setShowCombatHUD] = useState(false)
@@ -184,41 +143,11 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
   const [showSettings, setShowSettings] = useState(false)
   const [showNarrativeContext, setShowNarrativeContext] = useState(false)
   const [showTTSSettings, setShowTTSSettings] = useState(false)
-  const [ttsSettings, setTTSSettings] = useState<TTSSettingsType>(() => {
-    // Load TTS settings from localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('tts-settings');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.warn('Failed to parse saved TTS settings');
-        }
-      }
-    }
-    return {
-      voice: 'nova',
-      model: 'gpt-4o-mini-tts',
-      autoPlay: false
-    };
-  })
   const [isInCombat, setIsInCombat] = useState(false)
   const [currentTurn, setCurrentTurn] = useState<string>('1')
 
   // TTS Hook for auto-play functionality
   const { speak } = useTTS()
-
-  // NEW: Dice requirement state
-  const [diceRequirement, setDiceRequirement] = useState<{
-    expression: string
-    purpose: string
-    dc?: number
-    ability_modifier?: number
-    advantage?: boolean
-    disadvantage?: boolean
-  } | null>(null)
-  const [showDiceRequirement, setShowDiceRequirement] = useState(false)
-  const [isDiceFulfillmentLoading, setIsDiceFulfillmentLoading] = useState(false)
 
   // Narrative context data
   const narrativeData = useMockNarrativeContext()
@@ -408,6 +337,34 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
 
     fetchGameData()
   }, [characterId, storyId, getToken])
+
+  // Initialize orchestration session when game loads
+  useEffect(() => {
+    const initializeOrchestrationSession = async () => {
+      if (!characterId || !user?.id) {
+        console.log('⚠️ Cannot initialize orchestration session: missing characterId or user ID')
+        return
+      }
+
+      try {
+        console.log('🚀 Initializing orchestration session for user:', user.id)
+        const sessionId = await gameCommunication.startOrchestrationSession(user.id)
+        
+        if (sessionId) {
+          console.log('✅ Orchestration session initialized successfully:', sessionId)
+        } else {
+          console.warn('⚠️ Failed to initialize orchestration session')
+        }
+      } catch (error) {
+        console.error('❌ Error initializing orchestration session:', error)
+      }
+    }
+
+    // Only initialize session after character data is loaded
+    if (character.id && user?.id && !gameCommunication.sessionId) {
+      initializeOrchestrationSession()
+    }
+  }, [character.id, user?.id, gameCommunication, characterId])
 
   // Handle dice rolling using real communication
   const rollDice = async (diceType: string) => {
@@ -1143,7 +1100,7 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
                     checked={ttsSettings.autoPlay}
                     onChange={(e) => {
                       const newSettings = { ...ttsSettings, autoPlay: e.target.checked };
-                      setTTSSettings(newSettings);
+                      setTtsSettings(newSettings);
                       localStorage.setItem('tts-settings', JSON.stringify(newSettings));
                     }}
                     className="sr-only peer"
@@ -1407,7 +1364,7 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
         isOpen={showTTSSettings}
         onClose={() => setShowTTSSettings(false)}
         onSettingsChange={(newSettings) => {
-          setTTSSettings(newSettings);
+          setTtsSettings(newSettings);
           // Save to localStorage
           if (typeof window !== 'undefined') {
             localStorage.setItem('tts-settings', JSON.stringify(newSettings));

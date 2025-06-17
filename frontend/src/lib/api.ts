@@ -230,7 +230,29 @@ class ApiClient {
     modifier?: number
     label?: string
   }): Promise<ApiResponse<DiceRollResponse>> {
-    return this.post<DiceRollResponse>('/api/dice/simple', diceData)
+    return this.post('/api/dice/roll', diceData)
+  }
+
+  // NEW: Start orchestration session
+  async startOrchestrationSession(userId: string, characterId: number, storyArcId?: number): Promise<ApiResponse<{
+    session_id: string
+    success: boolean
+    result_type: string
+    narrative_text: string
+    state_changes: any[]
+    dice_required: any[]
+    next_actions: string[]
+    character: any
+  }>> {
+    const requestData = {
+      user_id: userId,
+      character_id: characterId,
+      story_arc_id: storyArcId
+    }
+    
+    console.log('🚀 Starting orchestration session:', requestData)
+    
+    return this.post('/api/orchestration/sessions/start', requestData)
   }
 
   // NEW: Get game status including dice requirements
@@ -252,7 +274,7 @@ class ApiClient {
   }
 
   // NEW: Fulfill dice requirement
-  async fulfillDiceRequirement(storyId: string, diceResult: {
+  async fulfillDiceRequirement(sessionId: string, diceResult: {
     dice_type: string
     rolls: number[]
     modifier: number
@@ -261,11 +283,21 @@ class ApiClient {
     disadvantage?: boolean
   }): Promise<ApiResponse<{
     success: boolean
-    dice_result: any
-    ai_response?: any
-    game_state_updates?: any
+    result_type: string
+    narrative_text: string
+    state_changes: any[]
+    next_actions: string[]
   }>> {
-    return this.post(`/api/games/${storyId}/fulfill-dice`, diceResult)
+    // Convert single dice result to the array format expected by orchestration API
+    const diceResults = [diceResult]
+    
+    console.log('🎲 Fulfilling dice requirement via orchestration API:', {
+      sessionId,
+      endpoint: `/api/orchestration/sessions/${sessionId}/continue`,
+      diceResults
+    })
+    
+    return this.post(`/api/orchestration/sessions/${sessionId}/continue`, diceResults)
   }
 
   async getScene(sceneId: string): Promise<ApiResponse<any>> {

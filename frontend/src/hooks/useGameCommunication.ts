@@ -27,6 +27,7 @@ interface GameCommunicationState {
   isLoading: boolean
   error: string | null
   lastPing: Date | null
+  sessionId: string | null
 }
 
 export function useGameCommunication(props: UseGameCommunicationProps = {}) {
@@ -47,7 +48,8 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
     connectionStatus: 'disconnected',
     isLoading: false,
     error: null,
-    lastPing: null
+    lastPing: null,
+    sessionId: null
   })
 
   // Refs for cleanup
@@ -462,6 +464,53 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
     }
   }, [gameId])
 
+  // NEW: Start orchestration session
+  const startOrchestrationSession = useCallback(async (userId: string): Promise<string | null> => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
+
+    try {
+      console.log('🚀 Starting orchestration session for character:', characterId)
+      
+      const response = await apiClient.startOrchestrationSession(userId, characterId)
+
+      if (response.success && response.data) {
+        const sessionId = response.data.session_id
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false,
+          sessionId: sessionId
+        }))
+        
+        console.log('✅ Orchestration session started:', sessionId)
+        
+        // Handle initial narrative from session start
+        if (response.data.narrative_text) {
+          const initialMessage: ChatMessage = {
+            id: `dm_start_${Date.now()}`,
+            type: 'dm_narration' as any,
+            content: response.data.narrative_text,
+            timestamp: new Date(),
+            metadata: {
+              generated_by: 'orchestration',
+              session_start: true,
+              result_type: response.data.result_type
+            }
+          }
+          onNewMessage?.(initialMessage)
+        }
+        
+        return sessionId
+      } else {
+        throw new Error(response.error || 'Failed to start orchestration session')
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      setState(prev => ({ ...prev, isLoading: false, error: errorMessage }))
+      console.error('Failed to start orchestration session:', error)
+      return null
+    }
+  }, [characterId, onNewMessage])
+
   // NEW: Fulfill dice requirement and continue narrative
   const fulfillDiceRequirement = useCallback(async (diceResult: {
     dice_type: string
@@ -476,37 +525,52 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
     try {
       console.log('🎲 Fulfilling dice requirement:', diceResult)
       
-      const response = await apiClient.fulfillDiceRequirement(gameId, diceResult)
+      // Use tracked sessionId, fallback to gameId if session not started yet
+      const sessionId = state.sessionId || gameId
+      
+      if (!state.sessionId) {
+        console.warn('⚠️ No orchestration session ID found, using gameId as fallback:', gameId)
+      }
+      
+      const response = await apiClient.fulfillDiceRequirement(sessionId, diceResult)
 
       if (response.success && response.data) {
-        console.log('✅ Dice requirement fulfilled successfully')
+        console.log('✅ Dice requirement fulfilled successfully via orchestration')
         
-        // Create AI response message if present
+        // Create AI response message from orchestration narrative
         let aiMessage: ChatMessage | null = null
-        if (response.data.ai_response) {
+        if (response.data.narrative_text) {
           aiMessage = {
-            id: response.data.ai_response.id,
-            type: response.data.ai_response.type as any,
-            content: response.data.ai_response.content,
-            timestamp: new Date(response.data.ai_response.timestamp)
+            id: `dm_dice_${Date.now()}`,
+            type: 'dm_narration' as any,
+            content: response.data.narrative_text,
+            timestamp: new Date(),
+            metadata: {
+              generated_by: 'orchestration',
+              dice_continuation: true,
+              result_type: response.data.result_type
+            }
           }
-          console.log('🤖 AI continuation message:', aiMessage)
+          console.log('🤖 AI orchestration continuation message:', aiMessage)
           
           // Trigger callback for AI continuation
           onNewMessage?.(aiMessage)
         }
 
-        // Handle game state updates
-        if (response.data.game_state_updates) {
-          onGameStateUpdate?.(response.data.game_state_updates)
+        // Handle game state updates from orchestration
+        if (response.data.state_changes && response.data.state_changes.length > 0) {
+          const stateUpdates = response.data.state_changes.reduce((acc, change) => {
+            return { ...acc, ...change }
+          }, {})
+          onGameStateUpdate?.(stateUpdates)
         }
 
         // Send via WebSocket for real-time updates
         apiClient.send('dice_fulfilled', {
-          game_id: gameId,
-          dice_result: response.data.dice_result,
+          session_id: sessionId,
+          dice_result: diceResult,
           ai_response: aiMessage,
-          game_state_updates: response.data.game_state_updates
+          orchestration_response: response.data
         })
 
         setState(prev => ({ ...prev, isLoading: false }))
@@ -520,7 +584,7 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
       setState(prev => ({ ...prev, isLoading: false, error: errorMessage }))
       return null
     }
-  }, [gameId, onNewMessage, onGameStateUpdate])
+  }, [state.sessionId, gameId, onNewMessage, onGameStateUpdate])
 
   // Manual connection control
   const connect = useCallback(() => {
@@ -563,6 +627,7 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
     loadGameState,
     generateSceneImage,
     getGameStatus,
+    startOrchestrationSession,
     fulfillDiceRequirement,
     
     // Connection Control
