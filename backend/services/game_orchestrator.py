@@ -145,7 +145,7 @@ class GameOrchestrator:
                 'inventory': getattr(character, 'inventory', [])
             }
             
-            await redis_service.cache_character_data(character_id, character_cache, CacheExpiry.LONG)
+            redis_service.cache_character(character, CacheExpiry.LONG)
             
             # Load story context if provided
             story_cache = None
@@ -159,7 +159,7 @@ class GameOrchestrator:
                         'objectives': getattr(story_arc, 'objectives', []),
                         'recent_events': []
                     }
-                    await redis_service.cache_story_data(story_arc_id, story_cache, CacheExpiry.MEDIUM)
+                    redis_service.cache_story(story_arc, None, CacheExpiry.MEDIUM)
             
             # Generate opening narration
             opening_prompt_context = {
