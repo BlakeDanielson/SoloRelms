@@ -96,7 +96,7 @@ class GameOrchestrator:
     
     def __init__(self, db: Session):
         self.db = db
-        self.story_service = StoryService(db)
+        self.story_service = StoryService
         self.combat_service = CombatService(db)
         self.active_turns: Dict[str, GameTurn] = {}
         
