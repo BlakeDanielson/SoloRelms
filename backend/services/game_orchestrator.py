@@ -119,13 +119,13 @@ class GameOrchestrator:
         session_id = f"session_{user_id}_{int(start_time.timestamp())}"
         
         try:
-            # Create Redis session
-            await redis_service.create_game_session(
-                session_id=session_id,
+            # Create Redis session  
+            session = await redis_service.create_game_session(
                 user_id=user_id,
                 character_id=character_id,
-                story_arc_id=story_arc_id
+                story_arc_id=story_arc_id or 0
             )
+            session_id = session.session_id
             
             # Load and cache character data
             character = self.db.query(Character).filter_by(id=character_id).first()
