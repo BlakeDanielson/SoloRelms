@@ -129,13 +129,20 @@ export default function DashboardPage() {
   };
 
   const handleLaunchGame = () => {
-    if (selectedAdventure) {
-      router.push(`/game?story_id=${selectedAdventure}`);
+  if (selectedAdventure) {
+    // Find the selected adventure to get the character_id
+    const adventure = ongoingAdventures.find(adv => adv.id === selectedAdventure);
+    if (adventure) {
+      router.push(`/game?character=${adventure.character_id}&story=${selectedAdventure}`);
     } else {
-      // Fallback to general game interface if no adventure selected
+      // Fallback if adventure not found
       router.push('/game');
     }
-  };
+  } else {
+    // Fallback to general game interface if no adventure selected
+    router.push('/game');
+  }
+};
 
   if (!isLoaded) {
     return (

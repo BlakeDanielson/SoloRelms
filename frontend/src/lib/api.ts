@@ -65,7 +65,8 @@ class ApiClient {
   private tokenRefreshCallback: (() => Promise<string | null>) | null = null
 
   constructor() {
-    this.initializeWebSocket()
+    // Don't initialize WebSocket immediately - wait until it's needed
+    // This prevents connection attempts before the page is fully loaded
   }
 
   // Method to set authentication token
@@ -453,10 +454,12 @@ class ApiClient {
   // WebSocket Management
   private initializeWebSocket() {
     try {
-      this.ws = new WebSocket(`${WS_URL}/ws`)
+      const wsUrl = `${WS_URL}/ws`
+      console.log('🔗 Attempting WebSocket connection to:', wsUrl)
+      this.ws = new WebSocket(wsUrl)
       
       this.ws.onopen = (event) => {
-        console.log('🔗 WebSocket connected')
+        console.log('🔗 WebSocket connected successfully')
         this.reconnectAttempts = 0
         this.emit('connection', { status: 'connected' })
       }
@@ -464,26 +467,40 @@ class ApiClient {
       this.ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data)
+          console.log('📨 WebSocket message received:', message.type)
           this.emit(message.type, message.data)
           this.emit('message', message)
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error)
+          console.error('Error parsing WebSocket message:', error, 'Raw data:', event.data)
         }
       }
 
       this.ws.onclose = (event) => {
-        console.log('🔌 WebSocket disconnected:', event.reason)
-        this.emit('connection', { status: 'disconnected', reason: event.reason })
+        console.log('🔌 WebSocket disconnected:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        })
+        this.emit('connection', { status: 'disconnected', reason: event.reason, code: event.code })
         this.handleReconnection()
       }
 
       this.ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error)
+        console.error('❌ WebSocket error:', {
+          error,
+          readyState: this.ws?.readyState,
+          url: wsUrl,
+          timestamp: new Date().toISOString()
+        })
         this.emit('connection', { status: 'error', error })
       }
 
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error)
+      console.error('Failed to initialize WebSocket:', {
+        error,
+        wsUrl: `${WS_URL}/ws`,
+        apiBaseUrl: API_BASE_URL
+      })
       this.handleReconnection()
     }
   }
@@ -491,19 +508,27 @@ class ApiClient {
   private handleReconnection() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
-      console.log(`🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
+      const delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1) // Exponential backoff
+      console.log(`🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`)
       
       setTimeout(() => {
-        this.initializeWebSocket()
-      }, this.reconnectInterval * this.reconnectAttempts)
+        if (this.reconnectAttempts <= this.maxReconnectAttempts) {
+          this.initializeWebSocket()
+        }
+      }, delay)
     } else {
-      console.error('❌ Max reconnection attempts reached')
+      console.error('❌ Max reconnection attempts reached. WebSocket connection failed permanently.')
+      console.log('💡 Troubleshooting tips:')
+      console.log('  - Check if backend server is running on port 8000')
+      console.log('  - Verify WebSocket endpoint is accessible')
+      console.log('  - Check browser network tab for connection details')
       this.emit('connection', { status: 'failed', attempts: this.reconnectAttempts })
     }
   }
 
   // WebSocket Event System
   on(event: string, listener: Function) {
+    this.ensureWebSocketConnection()
     if (!this.wsEventListeners.has(event)) {
       this.wsEventListeners.set(event, [])
     }
@@ -535,6 +560,7 @@ class ApiClient {
 
   // Send WebSocket message
   send(type: string, data: any) {
+    this.ensureWebSocketConnection()
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const message = {
         type,
@@ -544,6 +570,10 @@ class ApiClient {
       this.ws.send(JSON.stringify(message))
     } else {
       console.warn('WebSocket not connected. Message not sent:', { type, data })
+      // Try to establish connection for next time
+      if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
+        this.ensureWebSocketConnection()
+      }
     }
   }
 
@@ -571,6 +601,13 @@ class ApiClient {
       this.ws = null
     }
     this.wsEventListeners.clear()
+  }
+
+  // Lazy WebSocket initialization
+  private ensureWebSocketConnection() {
+    if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
+      this.initializeWebSocket()
+    }
   }
 }
 

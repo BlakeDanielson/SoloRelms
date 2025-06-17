@@ -45,10 +45,13 @@ app.add_middleware(
         "http://localhost:3001",
         "http://localhost:3002",  # Add the actual frontend port
         "http://localhost:3003",  # Add the new frontend port
-        "ws://localhost:3003"     # Add WebSocket support
+        "ws://localhost:3000",    # WebSocket origins
+        "ws://localhost:3001", 
+        "ws://localhost:3002",
+        "ws://localhost:3003"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

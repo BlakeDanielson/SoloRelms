@@ -504,7 +504,7 @@ export default function CharacterAdventuresPage() {
                     
                     {!adventure.story_completed && (
                       <button
-                        onClick={() => router.push(`/game?adventure=${adventure.id}`)}
+                        onClick={() => router.push(`/game?character=${adventure.character_id}&story=${adventure.id}`)}
                         className="flex items-center bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md transition-colors text-sm"
                       >
                         <Play className="w-4 h-4 mr-1" />
