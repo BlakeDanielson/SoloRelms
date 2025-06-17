@@ -135,11 +135,11 @@ class GameOrchestrator:
             character_cache = {
                 'id': character.id,
                 'name': character.name,
-                'class_name': character.class_name,
+                'class_name': character.character_class,
                 'level': character.level,
                 'race': character.race,
-                'current_hp': character.current_hp,
-                'max_hp': character.max_hp,
+                'current_hp': character.current_hit_points,
+                'max_hp': character.max_hit_points,
                 'armor_class': character.armor_class,
                 'location': getattr(character, 'location', 'Starting Area'),
                 'inventory': getattr(character, 'inventory', [])
