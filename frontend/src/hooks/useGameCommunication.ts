@@ -471,7 +471,7 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
     try {
       console.log('🚀 Starting orchestration session for character:', characterId)
       
-      const response = await apiClient.startOrchestrationSession(userId, characterId)
+      const response = await apiClient.startOrchestrationSession(userId, Number(characterId))
 
       if (response.success && response.data) {
         const sessionId = response.data.session_id
