@@ -316,10 +316,10 @@ export function useGameCommunication(props: UseGameCommunicationProps = {}) {
           diceType: response.data.dice,
           count: diceData.count || 1,
           modifier: response.data.modifier,
-          rolls: [response.data.result], // Backend should provide individual rolls
+          rolls: response.data.individual_rolls || [response.data.result],
           total: response.data.total,
-          label: diceData.label,
-          critical: response.data.total === 20 && diceData.dice_type === 'd20',
+          label: diceData.label || response.data.roll_type,
+          critical: response.data.critical || false,
           timestamp: new Date()
         }
 

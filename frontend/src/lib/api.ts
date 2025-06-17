@@ -18,8 +18,10 @@ interface DiceRollResponse {
   result: number
   modifier: number
   total: number
-  breakdown?: string
+  breakdown: string
   timestamp: string
+  individual_rolls: number[]
+  critical: boolean
 }
 
 interface GameActionResponse {
@@ -230,7 +232,7 @@ class ApiClient {
     modifier?: number
     label?: string
   }): Promise<ApiResponse<DiceRollResponse>> {
-    return this.post('/api/dice/roll', diceData)
+    return this.post('/api/dice/simple', diceData)
   }
 
   // NEW: Start orchestration session
