@@ -169,8 +169,15 @@ class GameOrchestrator:
                 'action': 'start_adventure'
             }
             
-            ai_response = await ai_service.generate_story_narration(opening_prompt_context)
-            parsed_response = response_parser.parse_response(ai_response)
+            # Simplified placeholder for now
+            ai_response = "Welcome to your adventure! You find yourself at the beginning of an epic journey."
+            parsed_response = ParsedResponse(
+                narrative_text=ai_response,
+                state_changes=[],
+                dice_rolls=[],
+                story_events=[],
+                combat_events=[]
+            )
             
             # Create initial turn record
             initial_turn = GameTurn(
