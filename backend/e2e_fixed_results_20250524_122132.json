@@ -1,0 +1,305 @@
+{
+  "timestamp": "2025-05-24T12:21:32.153555",
+  "config": {
+    "backend_url": "http://localhost:8000",
+    "frontend_url": "http://localhost:3001",
+    "test_timeout": 30,
+    "performance_threshold_ms": 3000,
+    "api_threshold_ms": 500,
+    "concurrent_users": 3,
+    "test_user_prefix": "e2e_test_user"
+  },
+  "results": "NEEDS_WORK",
+  "success_rate": 50.0,
+  "warning_rate": 16.666666666666664,
+  "passed_tests": 3,
+  "total_tests": 6,
+  "duration_ms": 4040.1413440704346,
+  "session_data": {},
+  "details": [
+    {
+      "test": "System Health Check",
+      "status": "PASS",
+      "duration_ms": 1984.0028285980225,
+      "details": "All 4 systems healthy, Clerk auth detected",
+      "error": null,
+      "performance_notes": "Avg response: 496.0ms",
+      "data": {
+        "Backend Health": {
+          "status": 200,
+          "duration_ms": 13.149261474609375,
+          "healthy": true
+        },
+        "Database Health": {
+          "status": 200,
+          "duration_ms": 1835.9639644622803,
+          "healthy": true
+        },
+        "Redis Health": {
+          "status": 200,
+          "duration_ms": 7.386207580566406,
+          "healthy": true
+        },
+        "Frontend Access": {
+          "status": 200,
+          "duration_ms": 127.48908996582031,
+          "healthy": true,
+          "clerk_status": "signed-out"
+        }
+      }
+    },
+    {
+      "test": "Frontend Page Loads",
+      "status": "WARNING",
+      "duration_ms": 156.29100799560547,
+      "details": "3/5 pages working, some issues",
+      "error": null,
+      "performance_notes": "Avg load: 31.1ms, 5/5 under threshold",
+      "data": {
+        "Homepage": {
+          "url": "http://localhost:3001/",
+          "status": 200,
+          "duration_ms": 28.65886688232422,
+          "size_bytes": 16604,
+          "within_threshold": true,
+          "success": true,
+          "auth_protected": false,
+          "has_react": true,
+          "has_clerk": true
+        },
+        "Sign In": {
+          "url": "http://localhost:3001/sign-in",
+          "status": 200,
+          "duration_ms": 52.15120315551758,
+          "size_bytes": 16762,
+          "within_threshold": true,
+          "success": true,
+          "auth_protected": false,
+          "has_react": true,
+          "has_clerk": true
+        },
+        "Sign Up": {
+          "url": "http://localhost:3001/sign-up",
+          "status": 200,
+          "duration_ms": 30.588865280151367,
+          "size_bytes": 16764,
+          "within_threshold": true,
+          "success": true,
+          "auth_protected": false,
+          "has_react": true,
+          "has_clerk": true
+        },
+        "Dashboard": {
+          "url": "http://localhost:3001/dashboard",
+          "status": 404,
+          "duration_ms": 26.400089263916016,
+          "size_bytes": 15142,
+          "within_threshold": true,
+          "success": false,
+          "auth_protected": true
+        },
+        "Character Create": {
+          "url": "http://localhost:3001/character/create",
+          "status": 404,
+          "duration_ms": 17.912864685058594,
+          "size_bytes": 15153,
+          "within_threshold": true,
+          "success": false,
+          "auth_protected": true
+        }
+      }
+    },
+    {
+      "test": "Game Mechanics Validation",
+      "status": "PASS",
+      "duration_ms": 25.648117065429688,
+      "details": "All 3 D&D mechanics working correctly",
+      "error": null,
+      "performance_notes": null,
+      "data": {
+        "test_results": [
+          [
+            "D&D 5e Options",
+            true,
+            {
+              "races_count": 14,
+              "classes_count": 13,
+              "backgrounds_count": 12,
+              "has_core_races": true,
+              "has_core_classes": true
+            }
+          ],
+          [
+            "Dice Mechanics",
+            true,
+            {
+              "d4": {
+                "total": 1,
+                "valid_range": true,
+                "has_breakdown": true
+              },
+              "d6": {
+                "total": 4,
+                "valid_range": true,
+                "has_breakdown": true
+              },
+              "d8": {
+                "total": 8,
+                "valid_range": true,
+                "has_breakdown": true
+              },
+              "d10": {
+                "total": 4,
+                "valid_range": true,
+                "has_breakdown": true
+              },
+              "d12": {
+                "total": 9,
+                "valid_range": true,
+                "has_breakdown": true
+              },
+              "d20": {
+                "total": 12,
+                "valid_range": true,
+                "has_breakdown": true
+              }
+            }
+          ],
+          [
+            "Character Stats",
+            true,
+            {
+              "has_six_stats": true,
+              "valid_ranges": true,
+              "includes_rolls": true
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "test": "Session Persistence",
+      "status": "FAIL",
+      "duration_ms": 1861.402988433838,
+      "details": "Session persistence testing error",
+      "error": "'max_hp' is an invalid keyword argument for Character",
+      "performance_notes": null,
+      "data": null
+    },
+    {
+      "test": "Concurrent Load Simulation",
+      "status": "PASS",
+      "duration_ms": 9.618043899536133,
+      "details": "3 concurrent users handled successfully",
+      "error": null,
+      "performance_notes": "Success rate: 100.0%, 12/12 successful",
+      "data": {
+        "results": [
+          {
+            "endpoint": "/health",
+            "user_id": 0,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/health",
+            "user_id": 1,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/health",
+            "user_id": 2,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/characters/options",
+            "user_id": 0,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/characters/options",
+            "user_id": 1,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/characters/options",
+            "user_id": 2,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/dice/simple",
+            "user_id": 0,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/dice/simple",
+            "user_id": 1,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/dice/simple",
+            "user_id": 2,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/redis/health",
+            "user_id": 0,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/redis/health",
+            "user_id": 1,
+            "status": 200,
+            "success": true
+          },
+          {
+            "endpoint": "/api/redis/health",
+            "user_id": 2,
+            "status": 200,
+            "success": true
+          }
+        ]
+      }
+    },
+    {
+      "test": "Error Handling Resilience",
+      "status": "FAIL",
+      "duration_ms": 3.1783580780029297,
+      "details": "Only 2/3 error scenarios handled properly",
+      "error": null,
+      "performance_notes": null,
+      "data": {
+        "Invalid endpoint": {
+          "expected_status": 404,
+          "actual_status": 404,
+          "duration_ms": 1.0960102081298828,
+          "proper_error_handling": true,
+          "has_error_message": true
+        },
+        "Missing required fields": {
+          "expected_status": 422,
+          "actual_status": 422,
+          "duration_ms": 1.1980533599853516,
+          "proper_error_handling": true,
+          "has_error_message": true
+        },
+        "Invalid dice type": {
+          "expected_status": 422,
+          "actual_status": 200,
+          "duration_ms": 0.8769035339355469,
+          "proper_error_handling": false,
+          "has_error_message": true
+        }
+      }
+    }
+  ]
+}

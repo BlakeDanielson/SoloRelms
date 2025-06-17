@@ -4,10 +4,10 @@ from typing import List, Optional, Dict, Any
 import random
 from datetime import datetime
 
-from ..models.combat import EnemyTemplate, CombatEncounter, CombatParticipant, CombatState, ActionType
-from ..models.character import Character
-from ..models.story import StoryArc
-from ..schemas.combat import (
+from models.combat import EnemyTemplate, CombatEncounter, CombatParticipant, CombatState, ActionType
+from models.character import Character
+from models.story import StoryArc
+from schemas.combat import (
     EnemyTemplateCreate, EnemyTemplateUpdate, EnemyTemplate as EnemyTemplateSchema,
     CombatEncounterCreate, CombatEncounterUpdate, CombatEncounter as CombatEncounterSchema,
     CombatParticipantCreate, CombatParticipantUpdate, CombatParticipant as CombatParticipantSchema,

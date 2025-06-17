@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from ..models.story import StoryArc, WorldState, StoryStage
-from ..models.character import Character
-from ..schemas.story import (
+from models.story import StoryArc, WorldState, StoryStage
+from models.character import Character
+from schemas.story import (
     StoryArcCreate, StoryArcUpdate, WorldStateCreate, WorldStateUpdate,
     StoryProgressSummary, DecisionRequest, NPCUpdateRequest, CombatRequest,
     LocationVisitRequest, WorldEventRequest, ObjectiveRequest, LoreRequest

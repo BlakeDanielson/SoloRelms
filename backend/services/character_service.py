@@ -2,12 +2,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Dict, Any
 import random
-from ..models.character import Character
-from ..schemas.character import (
+from models.character import Character
+from schemas.character import (
     CharacterCreate, 
     CharacterUpdate, 
     CharacterWithRolledStats,
-    StatRollResponse
+    StatRollResponse,
+    QuickCharacterCreate
 )
 
 class CharacterService:
@@ -308,4 +309,60 @@ class CharacterService:
         
         db.commit()
         db.refresh(db_character)
-        return db_character 
+        return db_character
+    
+    @staticmethod
+    def quick_create_character(db: Session, user_id: str, character_data: QuickCharacterCreate) -> Character:
+        """
+        Quick character creation with auto-generated stats
+        """
+        # Roll stats for the character
+        stat_roll = CharacterService.roll_all_stats()
+        
+        # Calculate derived stats
+        constitution_modifier = (stat_roll.constitution - 10) // 2
+        hit_points = 8 + constitution_modifier  # Base HP for level 1
+        if hit_points < 1:
+            hit_points = 1
+        
+        # Create character with rolled stats
+        character = Character(
+            user_id=user_id,
+            name=character_data.name,
+            race=character_data.race,
+            character_class=character_data.character_class,
+            background=character_data.background,
+            backstory=character_data.backstory,
+            level=character_data.level,
+            experience_points=character_data.experience_points,
+            
+            # Auto-generated stats
+            strength=stat_roll.strength,
+            dexterity=stat_roll.dexterity,
+            constitution=stat_roll.constitution,
+            intelligence=stat_roll.intelligence,
+            wisdom=stat_roll.wisdom,
+            charisma=stat_roll.charisma,
+            
+            # Calculated stats
+            max_hit_points=hit_points,
+            current_hit_points=hit_points,
+            armor_class=10 + ((stat_roll.dexterity - 10) // 2),  # Base AC + Dex modifier
+            
+            # Default values
+            proficiencies=[],
+            skill_proficiencies=[],
+            inventory=[],
+            equipped_items={},
+            is_active=True,
+            is_alive=True
+        )
+        
+        try:
+            db.add(character)
+            db.commit()
+            db.refresh(character)
+            return character
+        except IntegrityError:
+            db.rollback()
+            raise ValueError("Character with this name already exists for this user") 

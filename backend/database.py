@@ -2,15 +2,26 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 import os
 
 class DatabaseSettings(BaseSettings):
     """Database configuration settings"""
-    database_url: str = os.getenv("DATABASE_URL", "postgresql://username:password@localhost/solorelms")
+    model_config = ConfigDict(
+        env_file="../.env",  # Load from project root
+        extra="ignore",  # Ignore extra fields from .env file
+        env_file_encoding="utf-8"
+    )
+    
+    database_url: str = "sqlite:///./solorelms.db"
     echo: bool = False  # Set to True for SQL debugging
     
-    class Config:
-        env_file = ".env"
+    def __init__(self, **kwargs):
+        # Override with environment variable if available
+        database_url = os.getenv("DATABASE_URL")
+        if database_url:
+            kwargs["database_url"] = database_url
+        super().__init__(**kwargs)
 
 # Create settings instance
 settings = DatabaseSettings()

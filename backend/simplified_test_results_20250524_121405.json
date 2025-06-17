@@ -1,0 +1,86 @@
+{
+  "timestamp": "2025-05-24T12:14:05.467751",
+  "config": {
+    "backend_url": "http://localhost:8000",
+    "test_timeout": 30,
+    "concurrent_users": 5,
+    "performance_threshold_ms": 2000
+  },
+  "results": "EXCELLENT",
+  "success_rate": 100.0,
+  "passed_tests": 10,
+  "total_tests": 10,
+  "duration_ms": 2383.3351135253906,
+  "details": [
+    {
+      "test": "Backend Health Check",
+      "status": "PASS",
+      "duration_ms": 16.986846923828125,
+      "details": "Backend responding on port 8000",
+      "error": null
+    },
+    {
+      "test": "Database Connectivity",
+      "status": "PASS",
+      "duration_ms": 581.9079875946045,
+      "details": "Database connected, 1 characters",
+      "error": null
+    },
+    {
+      "test": "Redis Integration",
+      "status": "PASS",
+      "duration_ms": 10.438203811645508,
+      "details": "Redis v8.0.1 healthy",
+      "error": null
+    },
+    {
+      "test": "Character Options",
+      "status": "PASS",
+      "duration_ms": 1.1060237884521484,
+      "details": "14 races, 13 classes, 12 backgrounds",
+      "error": null
+    },
+    {
+      "test": "Dice Rolling System",
+      "status": "PASS",
+      "duration_ms": 7.306814193725586,
+      "details": "All 6 dice types working correctly",
+      "error": null
+    },
+    {
+      "test": "Cache Statistics",
+      "status": "PASS",
+      "duration_ms": 2.1131038665771484,
+      "details": "Cache statistics retrieved, 2 cached items",
+      "error": null
+    },
+    {
+      "test": "Cleanup Operations",
+      "status": "PASS",
+      "duration_ms": 0.9112358093261719,
+      "details": "Cleanup successful, 0 sessions cleaned",
+      "error": null
+    },
+    {
+      "test": "Performance Load Testing",
+      "status": "PASS",
+      "duration_ms": 17.50802993774414,
+      "details": "Success rate: 100.0%, Load test passed",
+      "error": null
+    },
+    {
+      "test": "Direct Database Operations",
+      "status": "PASS",
+      "duration_ms": 1743.530035018921,
+      "details": "Created test user and character, Redis healthy",
+      "error": null
+    },
+    {
+      "test": "Redis Combat State Storage",
+      "status": "PASS",
+      "duration_ms": 1.5268325805664062,
+      "details": "Cache stats retrieved, 0 sessions cleaned",
+      "error": null
+    }
+  ]
+}

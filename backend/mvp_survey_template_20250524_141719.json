@@ -1,0 +1,201 @@
+{
+  "survey_id": "mvp_feedback_v1",
+  "title": "SoloRealms MVP User Experience Survey",
+  "description": "Help us improve your D&D adventure experience!",
+  "estimated_time_minutes": 5,
+  "sections": [
+    {
+      "title": "Overall Experience",
+      "questions": [
+        {
+          "id": "overall_rating",
+          "type": "rating",
+          "question": "How would you rate your overall experience with SoloRealms?",
+          "scale": "1-5",
+          "labels": [
+            "Very Poor",
+            "Poor",
+            "Average",
+            "Good",
+            "Excellent"
+          ]
+        },
+        {
+          "id": "recommendation",
+          "type": "rating",
+          "question": "How likely are you to recommend SoloRealms to a friend?",
+          "scale": "0-10",
+          "labels": [
+            "Not at all likely",
+            "Extremely likely"
+          ]
+        },
+        {
+          "id": "general_feedback",
+          "type": "text",
+          "question": "What did you like most about SoloRealms?",
+          "required": false
+        }
+      ]
+    },
+    {
+      "title": "Character Creation",
+      "questions": [
+        {
+          "id": "character_creation_ease",
+          "type": "rating",
+          "question": "How easy was it to create your character?",
+          "scale": "1-5",
+          "labels": [
+            "Very Difficult",
+            "Difficult",
+            "Average",
+            "Easy",
+            "Very Easy"
+          ]
+        },
+        {
+          "id": "character_options",
+          "type": "rating",
+          "question": "How satisfied are you with the character customization options?",
+          "scale": "1-5"
+        },
+        {
+          "id": "character_feedback",
+          "type": "text",
+          "question": "Any suggestions for improving character creation?",
+          "required": false
+        }
+      ]
+    },
+    {
+      "title": "Story & Gameplay",
+      "questions": [
+        {
+          "id": "story_quality",
+          "type": "rating",
+          "question": "How engaging did you find the AI-generated story?",
+          "scale": "1-5",
+          "labels": [
+            "Not engaging",
+            "Slightly engaging",
+            "Moderately engaging",
+            "Very engaging",
+            "Extremely engaging"
+          ]
+        },
+        {
+          "id": "combat_system",
+          "type": "rating",
+          "question": "How intuitive was the combat system?",
+          "scale": "1-5"
+        },
+        {
+          "id": "dice_rolling",
+          "type": "rating",
+          "question": "How satisfied are you with the dice rolling mechanics?",
+          "scale": "1-5"
+        },
+        {
+          "id": "gameplay_feedback",
+          "type": "text",
+          "question": "What gameplay features would you like to see improved or added?",
+          "required": false
+        }
+      ]
+    },
+    {
+      "title": "User Interface",
+      "questions": [
+        {
+          "id": "ui_design",
+          "type": "rating",
+          "question": "How would you rate the visual design of the interface?",
+          "scale": "1-5"
+        },
+        {
+          "id": "ui_usability",
+          "type": "rating",
+          "question": "How easy was it to navigate and use the interface?",
+          "scale": "1-5"
+        },
+        {
+          "id": "mobile_experience",
+          "type": "rating",
+          "question": "If you used mobile, how was the mobile experience?",
+          "scale": "1-5",
+          "optional": true
+        },
+        {
+          "id": "ui_feedback",
+          "type": "text",
+          "question": "Any specific UI/UX improvements you'd suggest?",
+          "required": false
+        }
+      ]
+    },
+    {
+      "title": "Performance & Technical",
+      "questions": [
+        {
+          "id": "loading_speed",
+          "type": "rating",
+          "question": "How would you rate the loading speed of the application?",
+          "scale": "1-5",
+          "labels": [
+            "Very Slow",
+            "Slow",
+            "Average",
+            "Fast",
+            "Very Fast"
+          ]
+        },
+        {
+          "id": "stability",
+          "type": "rating",
+          "question": "Did you experience any crashes, errors, or bugs?",
+          "scale": "1-5",
+          "labels": [
+            "Many issues",
+            "Several issues",
+            "Some issues",
+            "Few issues",
+            "No issues"
+          ]
+        },
+        {
+          "id": "technical_issues",
+          "type": "text",
+          "question": "Please describe any technical issues you encountered:",
+          "required": false
+        }
+      ]
+    },
+    {
+      "title": "Future Features",
+      "questions": [
+        {
+          "id": "most_wanted_feature",
+          "type": "multiple_choice",
+          "question": "What feature would you most like to see added?",
+          "options": [
+            "Multiplayer campaigns",
+            "More character classes/races",
+            "Custom dice sets",
+            "Voice narration",
+            "Campaign sharing",
+            "Character artwork generation",
+            "Mobile app",
+            "Other"
+          ]
+        },
+        {
+          "id": "feature_suggestions",
+          "type": "text",
+          "question": "Any other feature ideas or suggestions?",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

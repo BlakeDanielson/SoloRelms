@@ -15,7 +15,7 @@ class Character(Base):
     
     # Primary key and identification
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, nullable=False, index=True)  # Clerk user ID
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # Clerk user ID
     name = Column(String(100), nullable=False)
     
     # Character creation details
@@ -60,10 +60,15 @@ class Character(Base):
     backstory = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
     
-    # Relationships (will be defined when other models are created)
+    # Relationships
+    user = relationship("User", back_populates="characters")
     story_arcs = relationship("StoryArc", back_populates="character")
     combat_encounters = relationship("CombatEncounter", back_populates="character")
     combat_participants = relationship("CombatParticipant", back_populates="character")
+    character_quests = relationship("CharacterQuest", back_populates="character")
+    journal_entries = relationship("JournalEntry", back_populates="character")
+    discoveries = relationship("Discovery", back_populates="character")
+    timeline_events = relationship("TimelineEvent", back_populates="character")
     
     @hybrid_property
     def strength_modifier(self):

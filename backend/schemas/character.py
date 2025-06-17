@@ -182,4 +182,19 @@ class CharacterStatsSummary(BaseModel):
     
     abilities: Dict[str, int] = Field(..., description="Ability scores and modifiers")
     saving_throws: Dict[str, int] = Field(..., description="Saving throw bonuses")
-    skills: Dict[str, int] = Field(..., description="Skill bonuses") 
+    skills: Dict[str, int] = Field(..., description="Skill bonuses")
+
+# Schema for quick character creation (auto-generates stats)
+class QuickCharacterCreate(BaseModel):
+    """Schema for quick character creation with auto-generated stats"""
+    name: str = Field(..., min_length=1, max_length=100, description="Character name")
+    race: str = Field(..., min_length=1, max_length=50, description="Character race")
+    character_class: str = Field(..., min_length=1, max_length=50, description="Character class")
+    background: Optional[str] = Field(None, max_length=50, description="Character background")
+    backstory: Optional[str] = Field(None, description="Character backstory")
+    
+    # Optional fields with defaults
+    level: int = Field(1, ge=1, le=20, description="Character level")
+    experience_points: int = Field(0, ge=0, description="Experience points")
+
+# Schema for creating a new character 

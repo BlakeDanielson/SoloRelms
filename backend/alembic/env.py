@@ -19,6 +19,8 @@ from database import Base, settings
 from models.character import Character
 from models.story import StoryArc, WorldState  
 from models.combat import EnemyTemplate, CombatEncounter, CombatParticipant
+from models.quest import Quest, QuestObjective, QuestReward, CharacterQuest, QuestObjectiveProgress
+from models.journal import JournalEntry, Discovery, TimelineEvent
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

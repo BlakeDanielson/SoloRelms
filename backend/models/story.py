@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, JSON, DateTime, Boolean, ForeignKey, Text, Enum
+from sqlalchemy import Column, Integer, String, JSON, DateTime, Boolean, ForeignKey, Text, Enum, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 from enum import Enum as PyEnum
 try:
@@ -28,6 +30,7 @@ class StoryArc(Base):
     # Primary identification
     id = Column(Integer, primary_key=True, index=True)
     character_id = Column(Integer, ForeignKey("characters.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # Clerk user ID
     
     # Story metadata
     title = Column(String(200), nullable=True)  # AI-generated or user-set story title
@@ -105,6 +108,7 @@ class StoryArc(Base):
     last_updated = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
+    user = relationship("User", back_populates="story_arcs")
     character = relationship("Character", back_populates="story_arcs")
     world_states = relationship("WorldState", back_populates="story_arc", cascade="all, delete-orphan")
     combat_encounters = relationship("CombatEncounter", back_populates="story_arc", cascade="all, delete-orphan")
@@ -119,6 +123,8 @@ class StoryArc(Base):
             self.stages_completed = []
         if self.current_stage.value not in self.stages_completed:
             self.stages_completed.append(self.current_stage.value)
+            # Tell SQLAlchemy that the JSON field has been modified
+            flag_modified(self, 'stages_completed')
         
         # Advance to next stage or mark complete
         if current_index < len(stages) - 1:
@@ -133,13 +139,13 @@ class StoryArc(Base):
         if self.current_stage == StoryStage.INTRO:
             return True  # Can always advance from intro
         elif self.current_stage == StoryStage.INCITING_INCIDENT:
-            return len(self.major_decisions) > 0  # Must make at least one decision
+            return self.major_decisions is not None and len(self.major_decisions) > 0  # Must make at least one decision
         elif self.current_stage == StoryStage.FIRST_COMBAT:
-            return len(self.combat_outcomes) > 0  # Must complete at least one combat
+            return self.combat_outcomes is not None and len(self.combat_outcomes) > 0  # Must complete at least one combat
         elif self.current_stage == StoryStage.TWIST:
             return True  # Story revelation can always happen
         elif self.current_stage == StoryStage.FINAL_CONFLICT:
-            return len(self.combat_outcomes) > 1  # Must have combat experience
+            return self.combat_outcomes is not None and len(self.combat_outcomes) > 1  # Must have combat experience
         else:
             return False  # Resolution is the final stage
     
@@ -153,6 +159,7 @@ class StoryArc(Base):
             "timestamp": datetime.utcnow().isoformat()
         })
         self.major_decisions.append(decision_data)
+        flag_modified(self, 'major_decisions')
     
     def update_npc_status(self, npc_id: str, status_data: dict):
         """Update the status of an NPC"""
@@ -163,6 +170,7 @@ class StoryArc(Base):
             self.npc_status[npc_id].update(status_data)
         else:
             self.npc_status[npc_id] = status_data
+        flag_modified(self, 'npc_status')
     
     def add_combat_outcome(self, combat_data: dict):
         """Record a combat encounter outcome"""
@@ -174,6 +182,7 @@ class StoryArc(Base):
             "timestamp": datetime.utcnow().isoformat()
         })
         self.combat_outcomes.append(combat_data)
+        flag_modified(self, 'combat_outcomes')
 
 
 class WorldState(Base):
@@ -267,6 +276,11 @@ class WorldState(Base):
     }
     """
     
+    # NEW: Dice requirement tracking
+    pending_dice_requirement = Column(JSON, default=None)  # Stores required dice roll info
+    last_dice_result = Column(JSON, default=None)  # Stores the last dice roll result
+    waiting_for_dice = Column(Boolean, default=False)  # Flag indicating if we're waiting for a dice roll
+    
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_updated = Column(DateTime(timezone=True), onupdate=func.now())
@@ -335,4 +349,112 @@ class WorldState(Base):
         if self.established_lore is None:
             self.established_lore = {}
         
-        self.established_lore[lore_key] = lore_value 
+        self.established_lore[lore_key] = lore_value
+    
+    def set_dice_requirement(self, dice_expression: str, purpose: str, dc: int = None, 
+                           ability_modifier: int = 0, advantage: bool = False):
+        """Set a dice requirement that must be fulfilled before continuing"""
+        self.pending_dice_requirement = {
+            "dice_expression": dice_expression,
+            "purpose": purpose,
+            "dc": dc,
+            "ability_modifier": ability_modifier,
+            "advantage": advantage,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        self.waiting_for_dice = True
+        self.last_updated = datetime.utcnow()
+    
+    def fulfill_dice_requirement(self, dice_result: dict):
+        """Fulfill the pending dice requirement with a roll result"""
+        if not self.waiting_for_dice or not self.pending_dice_requirement:
+            return False
+        
+        self.last_dice_result = {
+            **dice_result,
+            "fulfilled_at": datetime.utcnow().isoformat(),
+            "requirement": self.pending_dice_requirement
+        }
+        
+        # Clear the requirement
+        self.pending_dice_requirement = None
+        self.waiting_for_dice = False
+        self.last_updated = datetime.utcnow()
+        return True
+    
+    def clear_dice_requirement(self):
+        """Clear any pending dice requirement (for error recovery)"""
+        self.pending_dice_requirement = None
+        self.waiting_for_dice = False
+        self.last_updated = datetime.utcnow()
+    
+    def enter_combat(self, participants: list):
+        """Enter combat mode"""
+        self.combat_participants = participants
+        self.last_updated = datetime.utcnow()
+    
+    def exit_combat(self):
+        """Exit combat mode"""
+        self.combat_participants = []
+        self.last_updated = datetime.utcnow()
+    
+    def add_npc(self, npc_name: str, npc_data: dict = None):
+        """Add an NPC to the current location"""
+        if self.npcs_present is None:
+            self.npcs_present = []
+        
+        npc_entry = {
+            "name": npc_name,
+            "data": npc_data or {},
+            "added_at": datetime.utcnow().isoformat()
+        }
+        
+        # Remove existing entry for same NPC
+        self.npcs_present = [npc for npc in self.npcs_present if npc.get("name") != npc_name]
+        self.npcs_present.append(npc_entry)
+        self.last_updated = datetime.utcnow()
+    
+    def remove_npc(self, npc_name: str):
+        """Remove an NPC from the current location"""
+        if self.npcs_present is None:
+            return
+        
+        self.npcs_present = [npc for npc in self.npcs_present if npc.get("name") != npc_name]
+        self.last_updated = datetime.utcnow()
+    
+    def add_item(self, item_name: str, item_data: dict = None):
+        """Add an item to the current location"""
+        if self.items_available is None:
+            self.items_available = []
+        
+        item_entry = {
+            "name": item_name,
+            "data": item_data or {},
+            "added_at": datetime.utcnow().isoformat()
+        }
+        
+        self.items_available.append(item_entry)
+        self.last_updated = datetime.utcnow()
+    
+    def remove_item(self, item_name: str):
+        """Remove an item from the current location"""
+        if self.items_available is None:
+            return
+        
+        self.items_available = [item for item in self.items_available if item.get("name") != item_name]
+        self.last_updated = datetime.utcnow()
+    
+    def set_flag(self, flag_name: str, value: any):
+        """Set a location-specific flag"""
+        if self.location_flags is None:
+            self.location_flags = {}
+        
+        self.location_flags[flag_name] = value
+        self.last_updated = datetime.utcnow()
+    
+    def get_flag(self, flag_name: str, default_value: any = None):
+        """Get a location-specific flag value"""
+        if self.location_flags is None:
+            return default_value
+        
+        return self.location_flags.get(flag_name, default_value) 

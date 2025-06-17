@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.9",
     "task-master-ai": "^0.14.0"
   }
 }

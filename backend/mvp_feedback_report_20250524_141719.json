@@ -1,0 +1,211 @@
+{
+  "report_generated": "2025-05-24T14:17:19.397758",
+  "period_analyzed": "Last 7 days",
+  "executive_summary": {
+    "feedback_volume": "Received 5 feedback entries",
+    "satisfaction": "Moderate user satisfaction with average rating of 3.6/5",
+    "sentiment": "Overall positive user sentiment",
+    "survey_participation": "Received 5 survey responses",
+    "survey_satisfaction": "Survey shows 3.8/5 overall satisfaction"
+  },
+  "detailed_analysis": {
+    "period_days": 7,
+    "total_feedback_entries": 5,
+    "total_survey_responses": 5,
+    "feedback_by_type": {
+      "general": 5
+    },
+    "sentiment_distribution": {
+      "5": 2,
+      "3": 2,
+      "2": 1
+    },
+    "average_rating": 3.6,
+    "rating_distribution": {
+      "5": 2,
+      "3": 2,
+      "2": 1
+    },
+    "common_issues": [],
+    "positive_highlights": [
+      {
+        "theme": "love",
+        "mentions": 1,
+        "percentage": 50.0
+      },
+      {
+        "theme": "fun",
+        "mentions": 1,
+        "percentage": 50.0
+      },
+      {
+        "theme": "intuitive",
+        "mentions": 1,
+        "percentage": 50.0
+      }
+    ],
+    "survey_insights": {
+      "response_count": 5,
+      "average_ratings": {
+        "overall_rating": {
+          "average": 3.8,
+          "count": 5,
+          "distribution": {
+            "2.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "3.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "4.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "5.0": {
+              "count": 2,
+              "percentage": 40.0
+            }
+          }
+        },
+        "recommendation": {
+          "average": 7.2,
+          "count": 5,
+          "distribution": {
+            "4.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "6.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "7.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "9.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "10.0": {
+              "count": 1,
+              "percentage": 20.0
+            }
+          }
+        },
+        "character_creation_ease": {
+          "average": 4.2,
+          "count": 5,
+          "distribution": {
+            "3.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "4.0": {
+              "count": 2,
+              "percentage": 40.0
+            },
+            "5.0": {
+              "count": 2,
+              "percentage": 40.0
+            }
+          }
+        },
+        "story_quality": {
+          "average": 3.8,
+          "count": 5,
+          "distribution": {
+            "2.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "3.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "4.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "5.0": {
+              "count": 2,
+              "percentage": 40.0
+            }
+          }
+        },
+        "ui_design": {
+          "average": 3.6,
+          "count": 5,
+          "distribution": {
+            "2.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "3.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "4.0": {
+              "count": 2,
+              "percentage": 40.0
+            },
+            "5.0": {
+              "count": 1,
+              "percentage": 20.0
+            }
+          }
+        },
+        "loading_speed": {
+          "average": 2.6,
+          "count": 5,
+          "distribution": {
+            "1.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "2.0": {
+              "count": 1,
+              "percentage": 20.0
+            },
+            "3.0": {
+              "count": 2,
+              "percentage": 40.0
+            },
+            "4.0": {
+              "count": 1,
+              "percentage": 20.0
+            }
+          }
+        }
+      },
+      "top_requested_features": {
+        "Multiplayer campaigns": 1,
+        "More character classes/races": 1,
+        "Mobile app": 1,
+        "Voice narration": 1,
+        "Custom dice sets": 1
+      },
+      "satisfaction_scores": {}
+    }
+  },
+  "recommendations": [
+    "Improve loading speed: currently rated 2.6/5",
+    "Consider implementing most requested feature: Multiplayer campaigns (1 requests)"
+  ],
+  "action_items": [
+    {
+      "priority": "LOW",
+      "action": "Enhance successful feature: love",
+      "owner": "Product Team",
+      "timeline": "Next release cycle"
+    },
+    {
+      "priority": "LOW",
+      "action": "Enhance successful feature: fun",
+      "owner": "Product Team",
+      "timeline": "Next release cycle"
+    }
+  ]
+}

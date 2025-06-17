@@ -1,10 +1,12 @@
 {
   "meta": {
-    "generatedAt": "2025-05-22T01:59:05.642Z",
-    "tasksAnalyzed": 10,
+    "generatedAt": "2025-05-25T18:36:02.584Z",
+    "tasksAnalyzed": 2,
+    "totalTasks": 22,
+    "analysisCount": 12,
     "thresholdScore": 5,
     "projectName": "Taskmaster",
-    "usedResearch": false
+    "usedResearch": true
   },
   "complexityAnalysis": [
     {
@@ -86,6 +88,22 @@
       "recommendedSubtasks": 5,
       "expansionPrompt": "Divide testing and refinement into subtasks for automated test development, manual testing scenarios, user feedback collection, UI refinement, and backend/AI prompt optimization.",
       "reasoning": "End-to-end testing of a complex game system with multiple interconnected components is highly challenging. The iterative refinement process based on testing and feedback requires significant coordination across all system aspects."
+    },
+    {
+      "taskId": 21,
+      "taskTitle": "Implement Real Combat Flow",
+      "complexityScore": 9,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down the 'Implement Real Combat Flow' task into subtasks covering: 1) Combat state machine implementation with XState, 2) Initiative and turn order system, 3) Action selection mechanics, 4) Action resolution and damage calculation, 5) Immutable state management with immer, 6) Deterministic RNG implementation, and 7) Web Worker integration for calculations.",
+      "reasoning": "This task has high complexity due to multiple technical requirements including state machine implementation, turn-based mechanics, complex calculations, and multiple library integrations (XState, immer, seedrandom). The combat logic requires implementing D&D 5e rules with deterministic outcomes while maintaining performance. The comprehensive test strategy adds additional complexity."
+    },
+    {
+      "taskId": 22,
+      "taskTitle": "Develop Combat UI Enhancements",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the 'Develop Combat UI Enhancements' task into subtasks covering: 1) Health bar animations with Framer Motion, 2) Combat action animations, 3) Projectile and physics-based effects with react-spring, 4) Particle effect system implementation, 5) Combat log with virtualization, and 6) 3D dice rolling animations.",
+      "reasoning": "This task involves complex UI animations using multiple animation libraries (Framer Motion, react-spring, GSAP) and performance considerations for rendering many visual elements simultaneously. The integration of 3D dice rolling, particle effects, and virtualized combat logs adds significant complexity. The visual regression testing requirements also increase the overall complexity."
     }
   ]
 }
