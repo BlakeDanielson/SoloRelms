@@ -605,6 +605,11 @@ class ApiClient {
 
   // Lazy WebSocket initialization
   private ensureWebSocketConnection() {
+    // Temporarily disabled WebSocket to fix connection issues
+    // TODO: Re-enable after fixing backend WebSocket CORS/handshake issues
+    console.log('🔌 WebSocket temporarily disabled - using HTTP-only mode')
+    return
+    
     if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
       this.initializeWebSocket()
     }
