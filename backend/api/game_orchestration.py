@@ -114,7 +114,7 @@ async def start_game_session(
             "character": {
                 "id": character.id,
                 "name": character.name,
-                "class": character.class_name,
+                "class": character.character_class,
                 "level": character.level
             }
         }

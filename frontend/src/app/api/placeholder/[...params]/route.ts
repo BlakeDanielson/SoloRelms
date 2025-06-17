@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { params: string[] } }
+  { params }: { params: Promise<{ params: string[] }> }
 ) {
   try {
-    const [width, height] = params.params;
+    const resolvedParams = await params;
+    const [width, height] = resolvedParams.params;
     const { searchParams } = new URL(request.url);
     const text = searchParams.get('text') || 'Placeholder';
     const bg = searchParams.get('bg') || '888888';
