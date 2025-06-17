@@ -173,10 +173,13 @@ class GameOrchestrator:
             ai_response = "Welcome to your adventure! You find yourself at the beginning of an epic journey."
             parsed_response = ParsedResponse(
                 narrative_text=ai_response,
+                actions=[],
                 state_changes=[],
                 dice_rolls=[],
+                combat_events=[],
                 story_events=[],
-                combat_events=[]
+                confidence_score=1.0,
+                parsing_errors=[]
             )
             
             # Create initial turn record
