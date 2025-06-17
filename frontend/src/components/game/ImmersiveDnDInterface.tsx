@@ -106,13 +106,39 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
     storyCompleted: false
   })
 
+  // Initialize token on component mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const fetchedToken = await getToken()
+        setToken(fetchedToken)
+        setAuthToken(fetchedToken)
+      } catch (error) {
+        console.error('Failed to get initial token:', error)
+        setError('Authentication failed')
+      }
+    }
+    
+    if (user) {
+      initializeAuth()
+    }
+  }, [getToken, user])
+
   // Game communication hook
   const gameCommunication = useGameCommunication({
     gameId: storyId || 'demo-story',
     characterId: Number(characterId) || 1,
     authToken: token,
-    tokenRefreshCallback: (newToken: string) => {
-      setToken(newToken)
+    tokenRefreshCallback: async () => {
+      try {
+        const refreshedToken = await getToken()
+        setToken(refreshedToken)
+        setAuthToken(refreshedToken)
+        return refreshedToken
+      } catch (error) {
+        console.error('Failed to refresh token:', error)
+        return null
+      }
     },
     onNewMessage: (message) => {
       console.log('📨 New message received from game communication:', message)
@@ -214,15 +240,14 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
   // Fetch real story and character data
   useEffect(() => {
     const fetchGameData = async () => {
-      if (!characterId || !storyId) {
-        console.log('Missing characterId or storyId, using mock data')
+      if (!characterId || !storyId || !token) {
+        console.log('Missing characterId, storyId, or token, using mock data')
         setIsLoading(false)
         return
       }
 
       try {
         setIsLoading(true)
-        const token = await getToken()
 
         // Fetch character data
         const characterResponse = await fetch(`http://localhost:8000/api/characters/${characterId}`, {
@@ -337,13 +362,13 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
     }
 
     fetchGameData()
-  }, [characterId, storyId, getToken])
+  }, [characterId, storyId, token])
 
   // Initialize orchestration session when game loads
   useEffect(() => {
     const initializeOrchestrationSession = async () => {
-      if (!characterId || !user?.id) {
-        console.log('⚠️ Cannot initialize orchestration session: missing characterId or user ID')
+      if (!characterId || !user?.id || !token) {
+        console.log('⚠️ Cannot initialize orchestration session: missing characterId, user ID, or token')
         return
       }
 
@@ -362,10 +387,10 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
     }
 
     // Only initialize session after character data is loaded
-    if (character.id && user?.id && !gameCommunication.sessionId) {
+    if (character.id && user?.id && token && !gameCommunication.sessionId) {
       initializeOrchestrationSession()
     }
-  }, [character.id, user?.id, gameCommunication.sessionId, characterId])
+  }, [character.id, user?.id, token, gameCommunication.sessionId, characterId])
 
   // Handle dice rolling using real communication
   const rollDice = async (diceType: string) => {
