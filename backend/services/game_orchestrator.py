@@ -120,7 +120,7 @@ class GameOrchestrator:
         
         try:
             # Create Redis session  
-            session = await redis_service.create_game_session(
+            session = redis_service.create_game_session(
                 user_id=user_id,
                 character_id=character_id,
                 story_arc_id=story_arc_id or 0
