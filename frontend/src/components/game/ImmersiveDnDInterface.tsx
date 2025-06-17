@@ -88,6 +88,7 @@ const ImmersiveDnDInterface: React.FC<ImmersiveDnDInterfaceProps> = ({ character
     scene_type: "exploration",
     objectives: [],
     recent_events: [],
+    party_members: [],
     world_state: {
       time_of_day: "morning",
       weather: "clear",
