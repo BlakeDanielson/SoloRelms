@@ -451,168 +451,60 @@ class ApiClient {
     return this.post('/api/journal/timeline', eventData)
   }
 
-  // WebSocket Management
-  private initializeWebSocket() {
-    try {
-      const wsUrl = `${WS_URL}/ws`
-      console.log('🔗 Attempting WebSocket connection to:', wsUrl)
-      this.ws = new WebSocket(wsUrl)
-      
-      this.ws.onopen = (event) => {
-        console.log('🔗 WebSocket connected successfully')
-        this.reconnectAttempts = 0
-        this.emit('connection', { status: 'connected' })
-      }
-
-      this.ws.onmessage = (event) => {
-        try {
-          const message: WebSocketMessage = JSON.parse(event.data)
-          console.log('📨 WebSocket message received:', message.type)
-          this.emit(message.type, message.data)
-          this.emit('message', message)
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error, 'Raw data:', event.data)
-        }
-      }
-
-      this.ws.onclose = (event) => {
-        console.log('🔌 WebSocket disconnected:', {
-          code: event.code,
-          reason: event.reason,
-          wasClean: event.wasClean
-        })
-        this.emit('connection', { status: 'disconnected', reason: event.reason, code: event.code })
-        this.handleReconnection()
-      }
-
-      this.ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', {
-          error,
-          readyState: this.ws?.readyState,
-          url: wsUrl,
-          timestamp: new Date().toISOString()
-        })
-        this.emit('connection', { status: 'error', error })
-      }
-
-    } catch (error) {
-      console.error('Failed to initialize WebSocket:', {
-        error,
-        wsUrl: `${WS_URL}/ws`,
-        apiBaseUrl: API_BASE_URL
-      })
-      this.handleReconnection()
-    }
-  }
-
-  private handleReconnection() {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++
-      const delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1) // Exponential backoff
-      console.log(`🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`)
-      
-      setTimeout(() => {
-        if (this.reconnectAttempts <= this.maxReconnectAttempts) {
-          this.initializeWebSocket()
-        }
-      }, delay)
-    } else {
-      console.error('❌ Max reconnection attempts reached. WebSocket connection failed permanently.')
-      console.log('💡 Troubleshooting tips:')
-      console.log('  - Check if backend server is running on port 8000')
-      console.log('  - Verify WebSocket endpoint is accessible')
-      console.log('  - Check browser network tab for connection details')
-      this.emit('connection', { status: 'failed', attempts: this.reconnectAttempts })
-    }
-  }
-
-  // WebSocket Event System
+  // WebSocket Event System - TEMPORARILY DISABLED
   on(event: string, listener: Function) {
-    this.ensureWebSocketConnection()
-    if (!this.wsEventListeners.has(event)) {
-      this.wsEventListeners.set(event, [])
-    }
-    this.wsEventListeners.get(event)!.push(listener)
+    console.log('🔌 WebSocket temporarily disabled - ignoring event listener:', event)
+    // Temporarily disabled to fix connection issues
+    return
   }
 
   off(event: string, listener: Function) {
-    const listeners = this.wsEventListeners.get(event)
-    if (listeners) {
-      const index = listeners.indexOf(listener)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
+    // Temporarily disabled
+    return
   }
 
   private emit(event: string, data: any) {
-    const listeners = this.wsEventListeners.get(event)
-    if (listeners) {
-      listeners.forEach(listener => {
-        try {
-          listener(data)
-        } catch (error) {
-          console.error(`Error in WebSocket listener for ${event}:`, error)
-        }
-      })
-    }
+    // Temporarily disabled
+    return
   }
 
-  // Send WebSocket message
+  // WebSocket Message Sending - TEMPORARILY DISABLED
   send(type: string, data: any) {
-    this.ensureWebSocketConnection()
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      const message = {
-        type,
-        data,
-        timestamp: new Date().toISOString()
-      }
-      this.ws.send(JSON.stringify(message))
-    } else {
-      console.warn('WebSocket not connected. Message not sent:', { type, data })
-      // Try to establish connection for next time
-      if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
-        this.ensureWebSocketConnection()
-      }
-    }
+    console.log('🔌 WebSocket temporarily disabled - ignoring send:', type)
+    // Temporarily disabled to fix connection issues
+    return
   }
 
-  // Connection status
+  // Connection Status - FAKE IT
   get isConnected(): boolean {
-    return this.ws !== null && this.ws.readyState === WebSocket.OPEN
+    return false // Always disconnected until WebSocket is fixed
   }
 
   get connectionState(): string {
-    if (!this.ws) return 'disconnected'
-    
-    switch (this.ws.readyState) {
-      case WebSocket.CONNECTING: return 'connecting'
-      case WebSocket.OPEN: return 'connected'
-      case WebSocket.CLOSING: return 'closing'
-      case WebSocket.CLOSED: return 'disconnected'
-      default: return 'unknown'
-    }
+    return 'disconnected' // Always report disconnected
   }
 
-  // Cleanup
   disconnect() {
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-    this.wsEventListeners.clear()
+    // Nothing to disconnect
+    return
   }
 
-  // Lazy WebSocket initialization
+  // Remove WebSocket initialization completely
   private ensureWebSocketConnection() {
-    // Temporarily disabled WebSocket to fix connection issues
-    // TODO: Re-enable after fixing backend WebSocket CORS/handshake issues
-    console.log('🔌 WebSocket temporarily disabled - using HTTP-only mode')
+    // Completely disabled
+    console.log('🔌 WebSocket functionality temporarily disabled')
     return
-    
-    if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
-      this.initializeWebSocket()
-    }
+  }
+
+  private initializeWebSocket() {
+    // Completely disabled
+    console.log('🔌 WebSocket initialization skipped - temporarily disabled')
+    return
+  }
+
+  private handleReconnection() {
+    // Disabled
+    return
   }
 }
 
